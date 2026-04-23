@@ -1,0 +1,91 @@
+#!/bin/bash
+# commit-msg hook — validates commit message format against devflow.yaml
+# Installed by: scripts/setup-hooks.sh
+# Skip with: git commit --no-verify
+
+set -e
+
+MSG_FILE="$1"
+MSG=$(head -1 "$MSG_FILE")
+ROOT=$(git rev-parse --show-toplevel)
+CONFIG="$ROOT/.claude/devflow.yaml"
+
+# Default: conventional commits with feat/fix
+PRESET="conventional"
+TYPES="feat|fix|docs|refactor|chore|test|perf|ci|build"
+MAX_LEN=72
+LOWERCASE=true
+
+# Read config if available
+if [ -f "$CONFIG" ] && command -v python3 &>/dev/null; then
+  PRESET=$(python3 -c "
+import yaml
+try:
+    d = yaml.safe_load(open('$CONFIG'))
+    print(d.get('commits',{}).get('preset','conventional'))
+except: print('conventional')
+" 2>/dev/null) || PRESET="conventional"
+
+  TYPES=$(python3 -c "
+import yaml
+try:
+    d = yaml.safe_load(open('$CONFIG'))
+    types = d.get('commits',{}).get('types', ['feat','fix'])
+    print('|'.join(types))
+except: print('feat|fix')
+" 2>/dev/null) || TYPES="feat|fix"
+
+  MAX_LEN=$(python3 -c "
+import yaml
+try:
+    d = yaml.safe_load(open('$CONFIG'))
+    print(d.get('commits',{}).get('max_length', 72))
+except: print(72)
+" 2>/dev/null) || MAX_LEN=72
+fi
+
+# Skip validation for merge commits and fixup commits
+if echo "$MSG" | grep -qE '^(Merge |fixup! |squash! |amend! )'; then
+  exit 0
+fi
+
+# Freeform preset — no validation
+if [ "$PRESET" = "freeform" ]; then
+  exit 0
+fi
+
+# Validate format
+if ! echo "$MSG" | grep -qE "^($TYPES)(\(.+\))?!?: .+"; then
+  echo ""
+  echo "ERROR: Commit message doesn't match devflow format."
+  echo ""
+  echo "  Expected: <type>: <description>"
+  echo "  Types:    ${TYPES//|/, }"
+  echo "  Got:      $MSG"
+  echo ""
+  echo "  Examples:"
+  echo "    feat: add user authentication"
+  echo "    fix(api): handle null response"
+  echo ""
+  echo "  Skip with: git commit --no-verify"
+  exit 1
+fi
+
+# Check length
+if [ ${#MSG} -gt $MAX_LEN ]; then
+  echo ""
+  echo "ERROR: Commit message too long (${#MSG} chars, max $MAX_LEN)."
+  echo "  $MSG"
+  exit 1
+fi
+
+# Check lowercase (if configured)
+if [ "$LOWERCASE" = "true" ]; then
+  DESC=$(echo "$MSG" | sed -E "s/^($TYPES)(\(.+\))?!?: //")
+  if echo "$DESC" | grep -q '[A-Z]'; then
+    echo ""
+    echo "WARNING: Description should be lowercase."
+    echo "  Got: $DESC"
+    # Warning only, don't block
+  fi
+fi

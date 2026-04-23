@@ -1,0 +1,10 @@
+{
+  "name": "devflow",
+  "version": "0.1.0",
+  "description": "AI-powered developer workflow automation — PR lifecycle, ticket implementation, code review, and documentation. Config-driven, language-aware, works with any Git host.",
+  "author": {
+    "name": "Jerome Depotter"
+  },
+  "tags": ["workflow", "pr", "code-review", "ticket", "documentation", "git"],
+  "homepage": "https://github.com/jdepotter/devflow"
+}

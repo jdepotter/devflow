@@ -1,0 +1,69 @@
+# .claude/devflow.yaml — project configuration for devflow
+# Copy to .claude/devflow.yaml and adjust for your project.
+
+github:
+  host: github.com
+  base_branch: main
+
+commits:
+  preset: conventional          # conventional | ticket-prefix | freeform
+  types: [feat, fix, docs, refactor, chore, test, perf, ci, build]
+  ticket_pattern: "[A-Z]+-[0-9]+"
+  template: null                # custom: "{type}: {ticket} {description}"
+  lowercase_description: true
+  max_length: 72
+
+branches:
+  preset: type-ticket-description
+  template: null
+  separator: hyphen
+  types:
+    feature: feat
+    fix: fix
+    hotfix: fix
+    docs: docs
+    chore: chore
+
+pr:
+  draft: false
+  description_marker: "auto-pr-desc"
+  review_comments_marker: "devflow-review"
+
+tickets:
+  dir: ".claude/tickets"
+  state_gitignored: true
+
+worktrees:
+  dir: "~/worktrees"
+  repo_mode: current            # current | bare
+  bare_clone_dir: "~/devflow-repos"
+
+languages:
+  primary: auto
+  javascript:
+    format: "npm run format"
+    test: "npm test"
+    build: "npm run build"
+  typescript:
+    format: "npm run format"
+    test: "npm test"
+    build: "npm run build"
+  python:
+    format: "ruff format ."
+    test: "pytest"
+    build: null
+  go:
+    format: "gofmt -w ."
+    test: "go test ./..."
+    build: "go build ./..."
+  rust:
+    format: "cargo fmt"
+    test: "cargo test"
+    build: "cargo build"
+
+docs:
+  enabled: false
+  llm_dir: "docs/llm"
+  human_dir: "docs"
+  map_file: "tools/doc/doc-map.yaml"
+  lint_command: null
