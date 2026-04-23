@@ -1,0 +1,14 @@
+{
+  "name": "devflow",
+  "owner": {
+    "name": "Jerome Depotter"
+  },
+  "plugins": [
+    {
+      "name": "devflow",
+      "source": "./plugins/devflow",
+      "description": "AI-powered developer workflow automation — PR lifecycle, ticket implementation, code review, and documentation. Config-driven, language-aware, works with any Git host.",
+      "version": "0.1.0"
+    }
+  ]
+}

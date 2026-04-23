@@ -5,14 +5,11 @@ AI-powered developer workflow automation for [Claude Code](https://code.claude.c
 ## Install
 
 ```bash
-# From a marketplace
-/plugin marketplace add your-username/devflow
+# Add the marketplace and install
+/plugin marketplace add jdepotter/devflow
 /plugin install devflow@devflow
 
-# Or direct from GitHub
-/plugin install --source github:your-username/devflow
-
-# Then run setup
+# Then run setup in your project
 /devflow-init
 ```
 
